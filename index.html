@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moby Dick - Annotated Edition</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Moby Dick</h1>
+            <div class="chapter-info" id="chapterInfo">Chapter I - Loomings</div>
+            <div class="chapter-nav">
+                <label for="chapterSelect">Jump to Chapter:</label>
+                <select id="chapterSelect" class="chapter-select">
+                    <option value="">Loading chapters...</option>
+                </select>
+            </div>
+        </header>
+
+        <main>
+            <div class="page-content" id="pageContent">
+                <div class="loading">Loading...</div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="navigation">
+                <button id="prevPage" class="nav-btn" disabled>← Previous</button>
+                <div class="page-indicator" id="pageIndicator">Page 1</div>
+                <button id="nextPage" class="nav-btn">Next →</button>
+            </div>
+        </footer>
+
+        <!-- Note popup -->
+        <div class="note-popup" id="notePopup">
+            <div class="note-content" id="noteContent"></div>
+            <button class="close-note" id="closeNote">×</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
