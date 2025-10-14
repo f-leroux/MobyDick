@@ -14,7 +14,6 @@ const prevBtnTop = document.getElementById('prevPageTop');
 const nextBtnTop = document.getElementById('nextPageTop');
 const notePopup = document.getElementById('notePopup');
 const noteContent = document.getElementById('noteContent');
-const closeNoteBtn = document.getElementById('closeNote');
 const chapterSelect = document.getElementById('chapterSelect');
 const pageJumpInput = document.getElementById('pageJumpInput');
 const pageJumpBtn = document.getElementById('pageJumpBtn');
@@ -124,6 +123,18 @@ function processAnnotations(text, notes) {
 }
 
 // Better annotation processing - wrap the word before the marker
+function extractDefinedTerm(noteHtml) {
+  const temp = document.createElement('div');
+  temp.innerHTML = noteHtml || '';
+  const plainText = (temp.textContent || temp.innerText || '').trim();
+  if (!plainText) return null;
+  const colonIndex = plainText.indexOf(':');
+  if (colonIndex > 0) {
+    return plainText.substring(0, colonIndex).trim();
+  }
+  return null;
+}
+
 function processAnnotationsAdvanced(text, notes) {
     let result = text;
     // Match word (including punctuation) followed by the note marker [^n]
@@ -133,13 +144,36 @@ function processAnnotationsAdvanced(text, notes) {
     for (let i = markers.length - 1; i >= 0; i--) {
         const match = markers[i];
         const fullMatch = match[0];
-        const word = match[1];
+    const defaultWord = match[1];
         const noteNum = parseInt(match[2]);
         const index = match.index;
         
         if (notes[noteNum]) {
-            const annotated = `<span class="annotated" data-note="${noteNum}">${word}</span>`;
-            result = result.substring(0, index) + annotated + result.substring(index + fullMatch.length);
+      let wordToHighlight = defaultWord;
+      let punctuation = ''
+      let startIndex = index;
+
+      const definedTerm = extractDefinedTerm(notes[noteNum]);
+      if (definedTerm) {
+        // Build a regex to match the defined term just before the marker, ignoring case
+        const escaped = definedTerm
+          .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          .replace(/\s+/g, '\\s+');
+        // Allow trailing punctuation after the term
+        // const termRegex = new RegExp(`(${escaped})([\	\s\.,;!\?\"'\)\]\:]*)$`, 'i');
+        const termRegex = new RegExp(`(${escaped})([\\s.,;!?"'):]*)$`, 'i');
+        const beforeMarker = result.substring(0, index + match[1].length);
+        const termMatch = beforeMarker.match(termRegex);
+        if (termMatch) {
+          const matchedTermWithPunct = termMatch[1] + (termMatch[2] || '');
+          wordToHighlight = termMatch[1];
+          punctuation = termMatch[2];
+          startIndex = index + match[1].length - matchedTermWithPunct.length;
+        }
+      }
+
+      const annotated = `<span class="annotated" data-note="${noteNum}">${wordToHighlight}</span>`;
+      result = result.substring(0, startIndex) + annotated + punctuation + result.substring(index + fullMatch.length);
         }
     }
     
@@ -298,7 +332,6 @@ nextBtn.addEventListener('click', nextPage);
 prevBtn.addEventListener('click', prevPage);
 nextBtnTop.addEventListener('click', nextPage);
 prevBtnTop.addEventListener('click', prevPage);
-closeNoteBtn.addEventListener('click', hideNote);
 
 chapterSelect.addEventListener('change', (e) => {
     if (e.target.value) {
