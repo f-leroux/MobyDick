@@ -18,6 +18,8 @@ const chapterSelect = document.getElementById('chapterSelect');
 const pageJumpInput = document.getElementById('pageJumpInput');
 const pageJumpBtn = document.getElementById('pageJumpBtn');
 
+// Persistence: localStorage only
+
 // Load chapter data (supports combined Moby.json or individual files as fallback)
 async function loadAllChapters() {
     // Try combined file first
@@ -227,6 +229,12 @@ function displayPage() {
     
     // Scroll to top
     window.scrollTo(0, 0);
+
+  // Persist reading position (index and book page number)
+  try {
+    localStorage.setItem('moby:lastPageIndex', String(currentPageIndex));
+    localStorage.setItem('moby:lastPageNumber', String(page.pageNum));
+  } catch (e) { /* ignore */ }
 }
 
 // Show note popup
@@ -394,7 +402,22 @@ async function init() {
         
         if (allPages.length > 0) {
             populateChapterSelect();
-            displayPage();
+      // Restore last page if available
+      let restored = false;
+      try {
+        const savedIndex = localStorage.getItem('moby:lastPageIndex');
+        if (savedIndex !== null) {
+          const idx = parseInt(savedIndex, 10);
+          if (!Number.isNaN(idx) && idx >= 0 && idx < allPages.length) {
+            currentPageIndex = idx;
+            restored = true;
+          }
+        }
+      } catch (e) { /* ignore */ }
+      if (!restored) {
+        // no cookie fallback
+      }
+      displayPage();
             updateChapterSelect();
         } else {
             pageContent.innerHTML = '<div class="loading">No pages found</div>';
