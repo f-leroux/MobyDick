@@ -7,12 +7,17 @@ let notesMap = {};
 const pageContent = document.getElementById('pageContent');
 const chapterInfo = document.getElementById('chapterInfo');
 const pageIndicator = document.getElementById('pageIndicator');
+const pageIndicatorTop = document.getElementById('pageIndicatorTop');
 const prevBtn = document.getElementById('prevPage');
 const nextBtn = document.getElementById('nextPage');
+const prevBtnTop = document.getElementById('prevPageTop');
+const nextBtnTop = document.getElementById('nextPageTop');
 const notePopup = document.getElementById('notePopup');
 const noteContent = document.getElementById('noteContent');
 const closeNoteBtn = document.getElementById('closeNote');
 const chapterSelect = document.getElementById('chapterSelect');
+const pageJumpInput = document.getElementById('pageJumpInput');
+const pageJumpBtn = document.getElementById('pageJumpBtn');
 
 // Load all chapter files
 async function loadAllChapters() {
@@ -152,6 +157,7 @@ function displayPage() {
     
     // Update page indicator
     pageIndicator.textContent = `Page ${page.pageNum}`;
+    pageIndicatorTop.textContent = `Page ${page.pageNum}`;
     
     // Process and display content
     const processedText = processAnnotationsAdvanced(page.text, page.notes);
@@ -161,8 +167,13 @@ function displayPage() {
     notesMap = page.notes;
     
     // Update navigation buttons
-    prevBtn.disabled = currentPageIndex === 0;
-    nextBtn.disabled = currentPageIndex === allPages.length - 1;
+    const isFirstPage = currentPageIndex === 0;
+    const isLastPage = currentPageIndex === allPages.length - 1;
+    
+    prevBtn.disabled = isFirstPage;
+    nextBtn.disabled = isLastPage;
+    prevBtnTop.disabled = isFirstPage;
+    nextBtnTop.disabled = isLastPage;
     
     // Add click listeners to annotated spans
     document.querySelectorAll('.annotated').forEach(span => {
@@ -269,14 +280,44 @@ function updateChapterSelect() {
     chapterSelect.value = currentChapter;
 }
 
+// Page jump functionality
+function jumpToPage(pageNum) {
+    const pageIndex = allPages.findIndex(page => page.pageNum === parseInt(pageNum));
+    if (pageIndex !== -1) {
+        currentPageIndex = pageIndex;
+        displayPage();
+        updateChapterSelect();
+        pageJumpInput.value = '';
+        return true;
+    }
+    return false;
+}
+
 // Event listeners
 nextBtn.addEventListener('click', nextPage);
 prevBtn.addEventListener('click', prevPage);
+nextBtnTop.addEventListener('click', nextPage);
+prevBtnTop.addEventListener('click', prevPage);
 closeNoteBtn.addEventListener('click', hideNote);
 
 chapterSelect.addEventListener('change', (e) => {
     if (e.target.value) {
         goToChapter(e.target.value);
+    }
+});
+
+pageJumpBtn.addEventListener('click', () => {
+    const pageNum = pageJumpInput.value;
+    if (pageNum) {
+        if (!jumpToPage(pageNum)) {
+            alert(`Page ${pageNum} not found. Please enter a valid page number.`);
+        }
+    }
+});
+
+pageJumpInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        pageJumpBtn.click();
     }
 });
 

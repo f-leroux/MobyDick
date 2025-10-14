@@ -19,12 +19,26 @@
             </div>
         </header>
 
+        <!-- Top Navigation -->
+        <div class="navigation top-nav">
+            <button id="prevPageTop" class="nav-btn" disabled>← Previous</button>
+            <div class="page-indicator-group">
+                <div class="page-indicator" id="pageIndicatorTop">Page 1</div>
+                <div class="page-jump">
+                    <input type="number" id="pageJumpInput" class="page-jump-input" placeholder="Page #" min="1">
+                    <button id="pageJumpBtn" class="jump-btn">Go</button>
+                </div>
+            </div>
+            <button id="nextPageTop" class="nav-btn">Next →</button>
+        </div>
+
         <main>
             <div class="page-content" id="pageContent">
                 <div class="loading">Loading...</div>
             </div>
         </main>
 
+        <!-- Bottom Navigation -->
         <footer>
             <div class="navigation">
                 <button id="prevPage" class="nav-btn" disabled>← Previous</button>

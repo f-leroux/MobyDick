@@ -90,6 +90,7 @@ main {
     border-radius: 15px;
     box-shadow: 0 4px 20px rgba(107, 68, 35, 0.15);
     margin-bottom: 20px;
+    margin-top: 20px;
 }
 
 .page-content {
@@ -188,7 +189,12 @@ main {
     background: #f4d4b1;
 }
 
-/* Footer navigation */
+/* Navigation */
+.top-nav {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5d5c3;
+}
+
 footer {
     padding-top: 20px;
 }
@@ -198,6 +204,52 @@ footer {
     justify-content: space-between;
     align-items: center;
     gap: 20px;
+}
+
+.page-indicator-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-jump {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.page-jump-input {
+    width: 70px;
+    padding: 6px 8px;
+    border: 2px solid #c9a77c;
+    border-radius: 6px;
+    background: #faf8f5;
+    color: #3a2a1a;
+    font-family: 'Georgia', serif;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.page-jump-input:focus {
+    outline: none;
+    border-color: #8b6f47;
+}
+
+.jump-btn {
+    padding: 6px 12px;
+    background: #8b6f47;
+    color: #faf8f5;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: 'Georgia', serif;
+    transition: all 0.2s;
+}
+
+.jump-btn:hover {
+    background: #6b4423;
 }
 
 .nav-btn {
@@ -275,13 +327,29 @@ footer {
 
     .nav-btn {
         flex: 1;
-        min-width: 120px;
+        min-width: 100px;
     }
 
     .page-indicator {
         width: 100%;
         order: -1;
         margin-bottom: 10px;
+    }
+
+    .page-indicator-group {
+        width: 100%;
+        order: -1;
+        margin-bottom: 10px;
+    }
+
+    .page-jump {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .page-jump-input {
+        flex: 1;
+        max-width: 100px;
     }
 }
 
