@@ -18,49 +18,60 @@ const chapterSelect = document.getElementById('chapterSelect');
 const pageJumpInput = document.getElementById('pageJumpInput');
 const pageJumpBtn = document.getElementById('pageJumpBtn');
 
-// Load all chapter files
+// Load chapter data (supports combined Moby.json or individual files as fallback)
 async function loadAllChapters() {
+    // Try combined file first
+    try {
+        const resp = await fetch('text_data/Moby.json');
+        if (resp.ok) {
+            const combined = await resp.json();
+            if (Array.isArray(combined) && combined.length > 0) {
+                console.log(`Loaded combined Moby.json with ${combined.length} chapters`);
+                return combined.map((data, idx) => ({ number: idx + 1, data }));
+            }
+        }
+    } catch (e) {
+        console.warn('Combined Moby.json not available, falling back to per-chapter files.');
+    }
+
+    // Fallback to individual chapter files
     const chapters = [];
     let errors = 0;
-    
-    // Load all 136 chapters
-    for (let i = 1; i <= 136; i++) {
+    for (let i = 1; i <= 200; i++) { // allow more than 136 if needed
         const chapterNum = String(i).padStart(3, '0');
         try {
             const response = await fetch(`text_data/Moby${chapterNum}.json`);
             if (response.ok) {
                 const data = await response.json();
-                chapters.push({
-                    number: i,
-                    data: data
-                });
+                chapters.push({ number: i, data });
             } else {
-                errors++;
-                console.error(`Failed to load chapter ${chapterNum}: ${response.status}`);
+                // Stop trying once we miss a chapter after some have loaded
+                if (i > 1 && chapters.length > 0) break;
             }
         } catch (error) {
-            errors++;
-            console.error(`Error loading chapter ${chapterNum}:`, error);
-            
-            // Show helpful message on first error
-            if (errors === 1 && error.message && error.message.includes('Failed to fetch')) {
-                pageContent.innerHTML = `
-                    <div style="text-align: center; padding: 20px;">
-                        <h2 style="color: #8b6f47; margin-bottom: 20px;">⚠️ Server Required</h2>
-                        <p style="margin-bottom: 15px;">The files cannot be loaded directly from your file system due to browser security restrictions.</p>
-                        <p style="margin-bottom: 15px;"><strong>Please run a local server:</strong></p>
-                        <ol style="text-align: left; max-width: 500px; margin: 20px auto; line-height: 1.8;">
-                            <li><strong>Using Python:</strong><br><code style="background: #f4d4b1; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 5px;">python3 server.py</code></li>
-                            <li style="margin-top: 15px;"><strong>Or using npx:</strong><br><code style="background: #f4d4b1; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 5px;">npx http-server -p 8000</code></li>
-                        </ol>
-                        <p style="margin-top: 20px;">Then open: <a href="http://localhost:8000" style="color: #8b6f47; text-decoration: underline;">http://localhost:8000</a></p>
-                    </div>
-                `;
-                throw new Error('CORS error - server required');
+            if (i === 1) {
+                errors++;
+                // Show helpful message on first error likely due to CORS
+                if (error.message && error.message.includes('Failed to fetch')) {
+                    pageContent.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <h2 style="color: #8b6f47; margin-bottom: 20px;">⚠️ Server Required</h2>
+                            <p style="margin-bottom: 15px;">The files cannot be loaded directly from your file system due to browser security restrictions.</p>
+                            <p style="margin-bottom: 15px;"><strong>Please run a local server:</strong></p>
+                            <ol style="text-align: left; max-width: 500px; margin: 20px auto; line-height: 1.8;">
+                                <li><strong>Using Python:</strong><br><code style="background: #f4d4b1; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 5px;">python3 server.py</code></li>
+                                <li style="margin-top: 15px;"><strong>Or using npx:</strong><br><code style="background: #f4d4b1; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 5px;">npx http-server -p 8000</code></li>
+                            </ol>
+                            <p style="margin-top: 20px;">Then open: <a href="http://localhost:8000" style="color: #8b6f47; text-decoration: underline;">http://localhost:8000</a></p>
+                        </div>
+                    `;
+                    throw new Error('CORS error - server required');
+                }
             }
+            // If fetch failed for other reasons, stop after a few tries
+            if (i > 5) break;
         }
     }
-    
     return chapters;
 }
 
